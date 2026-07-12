@@ -5,28 +5,32 @@ struct HistoryListView: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            List(selection: $viewModel.selectedItemID) {
-                ForEach(viewModel.sections) { group in
-                    Section {
+            // Deliberately not a List: its NSTableView backing paints an
+            // opaque background over the panel material.
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 1) {
+                    ForEach(viewModel.sections) { group in
+                        Text(group.section.title)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 10)
+                            .padding(.top, 10)
+                            .padding(.bottom, 4)
                         ForEach(group.items) { item in
                             HistoryRowView(
                                 item: item,
                                 isSelected: item.persistentModelID == viewModel.selectedItemID
                             )
-                            .tag(item.persistentModelID)
                             .id(item.persistentModelID)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 1, leading: 6, bottom: 1, trailing: 6))
+                            .onTapGesture {
+                                viewModel.selectedItemID = item.persistentModelID
+                            }
                         }
-                    } header: {
-                        Text(group.section.title)
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(.secondary)
                     }
                 }
+                .padding(.horizontal, 8)
+                .padding(.bottom, 8)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
             .overlay {
                 if viewModel.visibleItems.isEmpty {
                     emptyState

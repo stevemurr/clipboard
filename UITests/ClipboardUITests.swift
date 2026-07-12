@@ -158,7 +158,12 @@ final class ClipboardUITests: XCTestCase {
         waitForRow(titled: plain)
 
         typeFilter.click()
-        app.menuItems["Links"].click()
+        let linksItem = app.menuItems["Links"]
+        if !linksItem.waitForExistence(timeout: 3) {
+            typeFilter.click() // popup can miss the first click while the panel settles
+            XCTAssertTrue(linksItem.waitForExistence(timeout: 3), "type filter menu did not open")
+        }
+        linksItem.click()
 
         XCTAssertTrue(waitForRow(titled: link).exists)
         let plainRow = app.staticTexts[plain]
