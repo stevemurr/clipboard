@@ -16,6 +16,9 @@ final class ClipboardUITests: XCTestCase {
     @MainActor
     override func setUp() {
         continueAfterFailure = false
+        // Each test starts with an empty pasteboard so the freshly launched
+        // monitor cannot auto-select content left behind by the previous case.
+        NSPasteboard.general.clearContents()
         app = XCUIApplication()
         app.launchArguments = ["--uitest"]
         app.launch()
@@ -290,14 +293,15 @@ final class ClipboardUITests: XCTestCase {
     }
 
     func testReturnCopiesSelectedEntryAndClosesPanel() {
-        // Seed FIRST, so it becomes the auto-selected row; seed SECOND so the
-        // pasteboard no longer equals the selection. Return must restore it.
+        // Keep the pasteboard different from the explicit selection so Return
+        // must restore the selected history item rather than pass accidentally.
         let first = uniqueText("first")
         let second = uniqueText("second")
         seedPasteboard(first)
         waitForRow(titled: first)
         seedPasteboard(second)
         waitForRow(titled: second)
+        waitForRow(titled: first).click()
 
         app.typeKey(.return, modifierFlags: [])
 
@@ -315,6 +319,7 @@ final class ClipboardUITests: XCTestCase {
         waitForRow(titled: first)
         seedPasteboard(second)
         waitForRow(titled: second)
+        waitForRow(titled: first).click()
 
         app.typeKey(.enter, modifierFlags: [])
 
@@ -561,6 +566,59 @@ final class ClipboardUITests: XCTestCase {
 
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "PDF preview drawer"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
+    func testREADMEHeroScreenshot() throws {
+        let code = """
+        import SwiftUI
+
+        struct ClipboardPreview: View {
+            var body: some View {
+                Text("Fast, native, and keyboard-first.")
+            }
+        }
+        """
+        seedPasteboard(code)
+        waitForRow(titled: "import SwiftUI")
+
+        seedPasteboard("https://github.com/stevemurr/clipboard")
+        waitForRow(titled: "https://github.com/stevemurr/clipboard")
+
+        seedPasteboard("#7967E8")
+        waitForRow(titled: "#7967E8")
+
+        try seedImagePasteboard(width: 160, height: 100)
+        waitForRow(titled: "Image (160×100)")
+
+        seedPasteboard("Keyboard-first. Native. Private by default.")
+        waitForRow(titled: "Keyboard-first. Native. Private by default.")
+
+        let markdown = """
+        # Clipboard, beautifully within reach
+
+        Find anything you copied without leaving the keyboard.
+
+        - Rich previews on demand
+        - Native actions and Quick Look
+        - Local history with private-by-default links
+        """
+        seedPasteboard(markdown)
+        let heroRow = waitForRow(titled: "Clipboard, beautifully within reach")
+        heroRow.click()
+        openPreviewDrawer()
+
+        XCTAssertTrue(
+            app.descendants(matching: .any)["preview-markdown"]
+                .waitForExistence(timeout: 3),
+            "rendered Markdown hero preview did not appear"
+        )
+
+        let panel = app.dialogs.firstMatch
+        XCTAssertTrue(panel.waitForExistence(timeout: 3))
+        let screenshot = XCTAttachment(screenshot: panel.screenshot())
+        screenshot.name = "Clipboard README hero"
         screenshot.lifetime = .keepAlways
         add(screenshot)
     }
