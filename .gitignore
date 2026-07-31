@@ -4,5 +4,6 @@ Generated/
 
 # Build output
 build/
+test-results/
 
 .DS_Store

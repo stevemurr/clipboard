@@ -8,14 +8,10 @@ struct HistoryListView: View {
             // Deliberately not a List: its NSTableView backing paints an
             // opaque background over the panel material.
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 1) {
+                LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(viewModel.sections) { group in
-                        Text(group.section.title)
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 10)
-                            .padding(.top, 10)
-                            .padding(.bottom, 4)
+                        sectionHeader(group.section.title)
+
                         ForEach(group.items) { item in
                             HistoryRowView(
                                 item: item,
@@ -25,10 +21,15 @@ struct HistoryListView: View {
                             .onTapGesture {
                                 viewModel.selectedItemID = item.persistentModelID
                             }
+                            .onHover { hovering in
+                                if hovering, !viewModel.isActionsPresented {
+                                    viewModel.selectedItemID = item.persistentModelID
+                                }
+                            }
                         }
                     }
                 }
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 5)
                 .padding(.bottom, 8)
             }
             .overlay {
@@ -42,12 +43,23 @@ struct HistoryListView: View {
         }
     }
 
+    private func sectionHeader(_ title: String) -> some View {
+        HStack {
+            Text(title)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Color.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 8)
+        .frame(height: ClipboardStyle.sectionHeaderHeight)
+    }
+
     private var emptyState: some View {
         VStack(spacing: 6) {
             Image(systemName: "clipboard")
                 .font(.system(size: 28))
                 .foregroundStyle(.tertiary)
-            Text(viewModel.searchText.isEmpty ? "No clipboard history yet" : "No matches")
+            Text(viewModel.emptyStateMessage)
                 .font(.system(size: 13))
                 .foregroundStyle(.secondary)
         }

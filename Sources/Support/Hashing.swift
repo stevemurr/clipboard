@@ -13,6 +13,20 @@ enum Hashing {
     }
 
     static func sha256(fileURLs urls: [URL]) -> String {
-        sha256(urls.map(\.path).sorted().joined(separator: "\n"))
+        let paths = urls.map(\.path).sorted()
+        var framed = Data()
+
+        func append(_ value: UInt64) {
+            var bigEndian = value.bigEndian
+            withUnsafeBytes(of: &bigEndian) { framed.append(contentsOf: $0) }
+        }
+
+        append(UInt64(paths.count))
+        for path in paths {
+            let bytes = Data(path.utf8)
+            append(UInt64(bytes.count))
+            framed.append(bytes)
+        }
+        return sha256(framed)
     }
 }

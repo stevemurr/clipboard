@@ -98,26 +98,32 @@ final class HistoryStore {
 
     // MARK: - Copy out
 
-    func copyToPasteboard(_ item: ClipboardItem) {
+    @discardableResult
+    func copyToPasteboard(_ item: ClipboardItem) -> Bool {
         let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
+        let wroteContent: Bool
 
         switch item.itemKind {
         case .text:
-            pasteboard.setString(item.textContent ?? "", forType: .string)
+            pasteboard.clearContents()
+            wroteContent = pasteboard.setString(item.textContent ?? "", forType: .string)
         case .image:
-            if let filename = item.imagePath,
-               let png = try? Data(contentsOf: imageStore.url(forFilename: filename)) {
-                pasteboard.setData(png, forType: .png)
-                if let tiff = NSBitmapImageRep(data: png)?.tiffRepresentation {
-                    pasteboard.setData(tiff, forType: .tiff)
-                }
+            guard let filename = item.imagePath,
+                  let png = try? Data(contentsOf: imageStore.url(forFilename: filename))
+            else { return false }
+            pasteboard.clearContents()
+            wroteContent = pasteboard.setData(png, forType: .png)
+            if wroteContent, let tiff = NSBitmapImageRep(data: png)?.tiffRepresentation {
+                pasteboard.setData(tiff, forType: .tiff)
             }
         case .file:
             let urls = item.fileURLPaths.map { URL(fileURLWithPath: $0) as NSURL }
-            pasteboard.writeObjects(urls)
+            guard !urls.isEmpty else { return false }
+            pasteboard.clearContents()
+            wroteContent = pasteboard.writeObjects(urls)
         }
 
+        guard wroteContent else { return false }
         pasteboard.setData(Data(), forType: PasteboardClassifier.selfMarker)
         onSelfWrite?()
 
@@ -126,6 +132,30 @@ final class HistoryStore {
         save()
         resort()
         onChange?()
+        return true
+    }
+
+    // MARK: - Queries
+
+    /// Filters the in-memory snapshot with the same predicates as the panel
+    /// UI (TypeFilter + ClipboardItem.matches), newest first.
+    func search(query: String, filter: TypeFilter = .all, limit: Int) -> [ClipboardItem] {
+        var results: [ClipboardItem] = []
+        for item in items where filter.matches(item) && item.matches(searchQuery: query) {
+            results.append(item)
+            if results.count >= limit { break }
+        }
+        return results
+    }
+
+    func item(withContentHash hash: String) -> ClipboardItem? {
+        items.first { $0.contentHash == hash }
+    }
+
+    @discardableResult
+    func copyToPasteboard(contentHash: String) -> Bool {
+        guard let item = item(withContentHash: contentHash) else { return false }
+        return copyToPasteboard(item)
     }
 
     // MARK: - Deletion & pruning

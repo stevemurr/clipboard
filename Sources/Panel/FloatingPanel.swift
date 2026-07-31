@@ -10,6 +10,7 @@ import QuickLookUI
 /// always in its own chain.
 final class FloatingPanel: NSPanel {
     var quickLookController: QuickLookController?
+    var onCancel: (() -> Void)?
 
     // Borderless windows refuse key status without this.
     override var canBecomeKey: Bool { true }
@@ -17,7 +18,12 @@ final class FloatingPanel: NSPanel {
 
     init(contentView: NSView) {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 750, height: 470),
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: ClipboardStyle.panelWidth,
+                height: ClipboardStyle.panelHeight
+            ),
             styleMask: [.borderless, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -37,7 +43,11 @@ final class FloatingPanel: NSPanel {
 
     // Esc backstop; normally the key monitor handles it first.
     override func cancelOperation(_ sender: Any?) {
-        orderOut(nil)
+        if let onCancel {
+            onCancel()
+        } else {
+            orderOut(nil)
+        }
     }
 
     // MARK: - Quick Look panel control

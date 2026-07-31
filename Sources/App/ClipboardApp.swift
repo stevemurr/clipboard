@@ -25,7 +25,19 @@ struct ClipboardApp: App {
         }
 
         Settings {
-            SettingsView(dependencies: appDelegate.dependencies)
+            SettingsSceneRoot(appDelegate: appDelegate)
         }
+    }
+}
+
+/// Observes the app delegate so the Settings window rebuilds when the app
+/// finishes launching and `dependencies` becomes available. A View with an
+/// `@ObservedObject` reliably re-renders on `@Published` changes, whereas the
+/// `Settings` scene captures the initial nil snapshot and never refreshes.
+private struct SettingsSceneRoot: View {
+    @ObservedObject var appDelegate: AppDelegate
+
+    var body: some View {
+        SettingsView(dependencies: appDelegate.dependencies)
     }
 }

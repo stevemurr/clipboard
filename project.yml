@@ -4,10 +4,17 @@ options:
   deploymentTarget:
     macOS: "15.0"
   createIntermediateGroups: true
+configs:
+  Debug: debug
+  Release: release
+  UITest: debug
 packages:
   KeyboardShortcuts:
     url: https://github.com/sindresorhus/KeyboardShortcuts
     from: 2.0.0
+  LocalMCPKit:
+    url: https://github.com/stevemurr/local-mcp-kit
+    revision: a94a1923db95c9e1b6a4d381db956717e6cba01a
 targets:
   Clipboard:
     type: application
@@ -18,7 +25,26 @@ targets:
         buildPhase: resources
     dependencies:
       - package: KeyboardShortcuts
+      - package: LocalMCPKit
+        product: LocalMCPContracts
+      - package: LocalMCPKit
+        product: LocalMCPDiscoveryBonjour
+      - package: LocalMCPKit
+        product: LocalMCPProducer
+      # The unit-test bundle runs inside this app process. Linking the
+      # consumer/discovery/testing products here keeps exactly one copy of
+      # every LocalMCP module in the test process; a second copy inside the
+      # test bundle breaks runtime casts such as `catch let error as
+      # LocalMCPError` across the app/test boundary.
+      - package: LocalMCPKit
+        product: LocalMCPConsumer
+      - package: LocalMCPKit
+        product: LocalMCPDiscovery
+      - package: LocalMCPKit
+        product: LocalMCPTesting
       - sdk: QuickLookUI.framework
+      - sdk: AVFoundation.framework
+      - sdk: PDFKit.framework
     info:
       path: Generated/Info.plist
       properties:
@@ -34,10 +60,43 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.stevemurr.clipboard
         MARKETING_VERSION: "1.0.0"
         SWIFT_VERSION: "5.0"
+        # Team signing (not ad-hoc): the data-protection keychain used for
+        # Local MCP pairing grants needs a team-derived keychain access group;
+        # ad-hoc "-" has none, so SecItem calls fail (grant_list_failed).
         CODE_SIGN_STYLE: Automatic
-        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: 6237SR7A22
+        # Indirection so a VM UI-test runner can retarget the app's
+        # entitlements from the command line (CLIPBOARD_ENTITLEMENTS=...)
+        # without a global CODE_SIGN_ENTITLEMENTS override leaking onto the
+        # test bundles, whose runner must stay entitlement-free.
+        CLIPBOARD_ENTITLEMENTS: Generated/Clipboard.entitlements
+        CODE_SIGN_ENTITLEMENTS: $(CLIPBOARD_ENTITLEMENTS)
         ENABLE_HARDENED_RUNTIME: NO
         ENABLE_APP_SANDBOX: NO
+      configs:
+        UITest:
+          # The ephemeral UI-test VM has no developer certificate or team
+          # provisioning profile. MCP is disabled under --uitest, so this
+          # build can omit the keychain access-group entitlement and use an
+          # ad-hoc signature.
+          CLIPBOARD_ENTITLEMENTS: ""
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "-"
+          DEVELOPMENT_TEAM: ""
+          PROVISIONING_PROFILE_SPECIFIER: ""
+  ClipboardTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests
+    dependencies:
+      - target: Clipboard
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.stevemurr.clipboard.tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
   ClipboardUITests:
     type: bundle.ui-testing
     platform: macOS
@@ -57,9 +116,19 @@ schemes:
     build:
       targets:
         Clipboard: all
+        ClipboardTests: [test]
     run:
       config: Debug
     test:
       config: Debug
+      targets:
+        - ClipboardTests
+  ClipboardUITests:
+    build:
+      targets:
+        Clipboard: all
+        ClipboardUITests: [test]
+    test:
+      config: UITest
       targets:
         - ClipboardUITests

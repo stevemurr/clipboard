@@ -24,6 +24,15 @@ enum PasteboardClassifier {
         selfMarker,
     ]
 
+    private static let imageTypesToNormalize: [NSPasteboard.PasteboardType] = [
+        .tiff,
+        NSPasteboard.PasteboardType("public.jpeg"),
+        NSPasteboard.PasteboardType("public.heic"),
+        NSPasteboard.PasteboardType("public.heif"),
+        NSPasteboard.PasteboardType("com.compuserve.gif"),
+        NSPasteboard.PasteboardType("org.webmproject.webp"),
+    ]
+
     static func classify(_ pasteboard: NSPasteboard) -> CapturedContent? {
         guard let types = pasteboard.types else { return nil }
         guard !skipTypes.contains(where: types.contains) else { return nil }
@@ -41,24 +50,26 @@ enum PasteboardClassifier {
             )
         }
 
-        // Prefer PNG as-is (no recompression); normalize TIFF-only to PNG so
-        // storage, hashing, and Quick Look all see one canonical format.
-        if let png = pasteboard.data(forType: .png) {
-            guard let rep = NSBitmapImageRep(data: png) else { return nil }
+        // Prefer PNG as-is (no recompression); normalize other common bitmap
+        // flavors to PNG so storage, hashing, and Quick Look see one format.
+        if let png = pasteboard.data(forType: .png),
+           let rep = NSBitmapImageRep(data: png) {
             return CapturedContent(
                 payload: .image(png: png, width: rep.pixelsWide, height: rep.pixelsHigh),
                 contentHash: Hashing.sha256(png),
                 byteSize: png.count
             )
         }
-        if let tiff = pasteboard.data(forType: .tiff) {
-            guard let rep = NSBitmapImageRep(data: tiff),
-                  let png = rep.representation(using: .png, properties: [:]) else { return nil }
-            return CapturedContent(
-                payload: .image(png: png, width: rep.pixelsWide, height: rep.pixelsHigh),
-                contentHash: Hashing.sha256(png),
-                byteSize: png.count
-            )
+        for type in imageTypesToNormalize {
+            if let sourceData = pasteboard.data(forType: type),
+               let rep = NSBitmapImageRep(data: sourceData),
+               let png = rep.representation(using: .png, properties: [:]) {
+                return CapturedContent(
+                    payload: .image(png: png, width: rep.pixelsWide, height: rep.pixelsHigh),
+                    contentHash: Hashing.sha256(png),
+                    byteSize: png.count
+                )
+            }
         }
 
         if let string = pasteboard.string(forType: .string),

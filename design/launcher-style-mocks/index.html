@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clipboard × Launcher — Visual Direction</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --canvas: #d9dce2;
+      --surface: rgba(240, 240, 243, 0.94);
+      --control: rgba(255, 255, 255, 0.56);
+      --footer: rgba(255, 255, 255, 0.20);
+      --text: #1d1d1f;
+      --secondary: rgba(60, 60, 67, 0.65);
+      --tertiary: rgba(60, 60, 67, 0.38);
+      --line: rgba(60, 60, 67, 0.18);
+      --selected: rgba(0, 0, 0, 0.085);
+      --key: rgba(0, 0, 0, 0.062);
+      --shadow: rgba(19, 22, 29, 0.24);
+      --blue: #287cf4;
+      --green: #35a765;
+      --orange: #e98735;
+      --red: #dd4a43;
+      --purple: #7967e8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      color: #171719;
+      background:
+        radial-gradient(circle at 18% 9%, rgba(255,255,255,.84), transparent 28%),
+        linear-gradient(138deg, #d7dbe2 0%, #bfc5ce 42%, #dadddf 100%);
+    }
+
+    .study {
+      width: 1440px;
+      min-height: 960px;
+      margin: 0 auto;
+      padding: 54px 58px 64px;
+    }
+
+    .study-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      color: rgba(22, 22, 25, 0.9);
+    }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: rgba(22, 22, 25, 0.48);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.35px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: -0.8px;
+    }
+
+    .study-note {
+      max-width: 480px;
+      margin: 0 0 4px;
+      color: rgba(22, 22, 25, 0.58);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+      text-align: right;
+    }
+
+    .mock-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .mock-card {
+      min-width: 0;
+    }
+
+    .mock-card.hero {
+      grid-column: 1 / -1;
+    }
+
+    .caption {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin: 0 4px 12px;
+      color: rgba(22, 22, 25, 0.72);
+    }
+
+    .caption strong {
+      font-size: 14px;
+    }
+
+    .caption span {
+      color: rgba(22, 22, 25, 0.46);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .desktop {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 600px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.56);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 22% 12%, rgba(255,255,255,.48), transparent 30%),
+        linear-gradient(144deg, #aeb7c2, #727e8c 56%, #a6aeb7);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.06), 0 20px 50px rgba(35,41,50,.16);
+    }
+
+    .desktop.dark-desk {
+      background:
+        radial-gradient(circle at 74% 18%, rgba(80, 101, 139, .32), transparent 34%),
+        linear-gradient(145deg, #27313d, #101720 62%, #1e2630);
+    }
+
+    .desktop.compact {
+      min-height: 500px;
+    }
+
+    .panel {
+      --panel-width: 774px;
+      --panel-height: 512px;
+      position: relative;
+      width: var(--panel-width);
+      height: var(--panel-height);
+      overflow: hidden;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: 0 22px 55px var(--shadow), 0 2px 9px rgba(0,0,0,.13);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .panel.dark {
+      --surface: rgba(27, 27, 30, 0.95);
+      --control: rgba(255, 255, 255, 0.055);
+      --footer: rgba(255, 255, 255, 0.025);
+      --text: #f5f5f7;
+      --secondary: rgba(235, 235, 245, 0.60);
+      --tertiary: rgba(235, 235, 245, 0.31);
+      --line: rgba(235, 235, 245, 0.15);
+      --selected: rgba(255, 255, 255, 0.10);
+      --key: rgba(255, 255, 255, 0.075);
+      --shadow: rgba(0, 0, 0, 0.48);
+    }
+
+    .window-header {
+      display: flex;
+      height: 59px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 14px 0 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .search {
+      flex: 1;
+      min-width: 0;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.24px;
+      white-space: nowrap;
+    }
+
+    .search .placeholder {
+      color: var(--secondary);
+    }
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--secondary);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tool-label { opacity: .72; }
+
+    .filter-chip,
+    .icon-button {
+      display: inline-flex;
+      height: 28px;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 7px;
+      color: var(--secondary);
+      background: var(--key);
+      font: inherit;
+    }
+
+    .filter-chip {
+      gap: 7px;
+      padding: 0 9px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .icon-button {
+      width: 28px;
+      font-size: 15px;
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      height: 412px;
+    }
+
+    .list-pane {
+      min-width: 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .detail-pane {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      height: 36px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      color: var(--secondary);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .section-header .count {
+      color: var(--tertiary);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .history-row {
+      display: flex;
+      height: 48px;
+      align-items: center;
+      gap: 11px;
+      margin: 0 8px;
+      padding: 0 9px;
+      border-radius: 12px;
+    }
+
+    .history-row.selected { background: var(--selected); }
+
+    .item-icon {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 6px;
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
+    .item-icon.text { background: linear-gradient(#737780, #393b40); }
+    .item-icon.link { background: linear-gradient(#4797ff, #1e6cd8); }
+    .item-icon.color { background: linear-gradient(135deg, #ff7b8a, #7967e8 60%, #55c7bd); }
+    .item-icon.image {
+      background:
+        radial-gradient(circle at 70% 32%, #ffd87d 0 11%, transparent 12%),
+        linear-gradient(145deg, #63d0c0 0 43%, #446dbe 44% 65%, #25355f 66%);
+    }
+    .item-icon.file { background: linear-gradient(#eea05a, #d36b2d); }
+
+    .item-copy {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .item-title {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 560;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .item-meta {
+      margin-top: 3px;
+      overflow: hidden;
+      color: var(--secondary);
+      font-size: 12px;
+      line-height: 1.1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .preview {
+      display: flex;
+      min-height: 0;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px 16px;
+    }
+
+    .text-preview {
+      width: 100%;
+      max-height: 230px;
+      overflow: hidden;
+      padding: 18px 19px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      color: var(--text);
+      background: var(--control);
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 13px;
+      line-height: 1.52;
+      box-shadow: 0 1px 0 rgba(255,255,255,.22) inset;
+    }
+
+    .text-preview .comment { color: var(--secondary); }
+    .text-preview .accent { color: var(--blue); }
+    .dark .text-preview .accent { color: #6ba4ff; }
+
+    .info-card {
+      margin: 0 16px 15px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--control);
+    }
+
+    .info-row {
+      display: flex;
+      height: 34px;
+      align-items: center;
+      padding: 0 13px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .info-row + .info-row { border-top: 1px solid var(--line); }
+    .info-row .label { color: var(--secondary); }
+    .info-row .value { margin-left: auto; font-weight: 550; }
+
+    .footer {
+      display: flex;
+      height: 39px;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      border-top: 1px solid var(--line);
+      color: var(--secondary);
+      background: var(--footer);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .footer .brand {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .brand-mark {
+      color: var(--secondary);
+      font-size: 16px;
+    }
+
+    .spacer { flex: 1; }
+    .footer .primary { color: color-mix(in srgb, var(--text) 92%, transparent); }
+
+    .divider {
+      width: 1px;
+      height: 14px;
+      background: var(--line);
+    }
+
+    .keys {
+      display: inline-flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .key {
+      display: inline-flex;
+      min-width: 23px;
+      min-height: 22px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6px;
+      border: .5px solid var(--line);
+      border-radius: 6px;
+      color: var(--secondary);
+      background: var(--key);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1;
+    }
+
+    .image-preview {
+      position: relative;
+      width: 318px;
+      height: 206px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background:
+        radial-gradient(circle at 67% 30%, rgba(255, 225, 153, .96) 0 6%, transparent 6.5%),
+        linear-gradient(160deg, transparent 0 54%, rgba(46,70,111,.8) 55% 68%, rgba(24,36,61,.95) 69%),
+        linear-gradient(145deg, #8bd7ca, #398da5 53%, #284f7e);
+      box-shadow: 0 12px 26px rgba(0,0,0,.28);
+    }
+
+    .image-preview::before,
+    .image-preview::after {
+      content: "";
+      position: absolute;
+      bottom: -24px;
+      width: 260px;
+      height: 170px;
+      border-radius: 48% 52% 0 0;
+      transform: rotate(-7deg);
+      background: linear-gradient(150deg, #182846, #446289);
+    }
+
+    .image-preview::before { left: -72px; }
+    .image-preview::after {
+      right: -88px;
+      bottom: -45px;
+      transform: rotate(11deg);
+      background: linear-gradient(150deg, #274970, #15243c);
+    }
+
+    .mini-panel {
+      --panel-width: 590px;
+      --panel-height: 410px;
+      transform: scale(.92);
+    }
+
+    .mini-panel .main {
+      grid-template-columns: 270px 1fr;
+      height: 310px;
+    }
+
+    .mini-panel .section-header { height: 34px; }
+    .mini-panel .history-row { height: 44px; }
+    .mini-panel .item-title { font-size: 14px; }
+    .mini-panel .item-meta { display: none; }
+    .mini-panel .info-card { margin-bottom: 10px; }
+
+    .palette {
+      position: absolute;
+      right: 8px;
+      bottom: 45px;
+      z-index: 5;
+      width: 330px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: var(--text);
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      box-shadow: 0 20px 44px rgba(0,0,0,.27);
+      backdrop-filter: blur(28px) saturate(1.15);
+    }
+
+    .palette-title {
+      display: flex;
+      height: 40px;
+      align-items: center;
+      padding: 0 12px;
+      color: var(--secondary);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .action {
+      display: flex;
+      height: 40px;
+      align-items: center;
+      gap: 10px;
+      margin: 0 7px;
+      padding: 0 10px;
+      border-radius: 9px;
+      font-size: 15px;
+      font-weight: 560;
+    }
+
+    .action.selected { background: var(--selected); }
+    .action-icon { width: 20px; color: var(--secondary); text-align: center; }
+    .action.danger .action-icon, .action.danger .action-name { color: var(--red); }
+
+    .mock-token-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .token {
+      min-height: 92px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.58);
+      border-radius: 16px;
+      background: rgba(255,255,255,.34);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.035);
+    }
+
+    .token-name {
+      margin-bottom: 10px;
+      color: rgba(22,22,25,.48);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .swatches { display: flex; gap: 7px; }
+    .swatch {
+      width: 26px;
+      height: 26px;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 8px;
+    }
+
+    .token-value {
+      color: rgba(22,22,25,.74);
+      font-size: 13px;
+      font-weight: 650;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1000px) {
+      .study { width: 1000px; padding-inline: 30px; }
+      .mock-grid { display: block; }
+      .mock-card { margin-bottom: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="study">
+    <header class="study-header">
+      <div>
+        <div class="eyebrow">Visual direction study · July 2026</div>
+        <h1>Clipboard, through the Launcher lens</h1>
+      </div>
+      <p class="study-note">A direct adoption of Launcher’s translucent surface, compact typography, rounded selection language, section rhythm, keycaps, and action footer—while preserving Clipboard’s split history/preview anatomy.</p>
+    </header>
+
+    <section class="mock-grid">
+      <article class="mock-card hero">
+        <div class="caption">
+          <strong>01 · Recommended direction</strong>
+          <span>Light appearance · text selection</span>
+        </div>
+        <div class="desktop">
+          <div class="panel">
+            <header class="window-header">
+              <div class="search"><span class="placeholder">Search clipboard history</span></div>
+              <div class="header-tools">
+                <button class="filter-chip">All Types <span>⌄</span></button>
+                <span class="tool-label">Hotkey</span>
+                <span class="key">⇧⌘V</span>
+                <button class="icon-button">⚙︎</button>
+              </div>
+            </header>
+            <div class="main">
+              <aside class="list-pane">
+                <div class="section-header"><span>Today</span><span class="count">8 items</span></div>
+                <div class="history-row selected">
+                  <div class="item-icon text">≡</div>
+                  <div class="item-copy">
+                    <div class="item-title">Clipboard should feel instant, quiet, and native.</div>
+                    <div class="item-meta">Notes · 2 min ago</div>
+                  </div>
+                </div>
+                <div class="history-row">
+                  <div class="item-icon link">↗</div>
+                  <div class="item-copy">
+                    <div class="item-title">github.com/stevemurr/clipboard</div>
+                    <div class="item-meta">Safari · 12 min ago</div>
+                  </div>
+                </div>
+                <div class="history-row">
+                  <div class="item-icon image">⌁</div>
+                  <div class="item-copy">
+                    <div class="item-title">Image (1440×960)</div>
+                    <div class="item-meta">Preview · 28 min ago</div>
+                  </div>
+                </div>
+                <div class="history-row">
+                  <div class="item-icon color"></div>
+                  <div class="item-copy">
+                    <div class="item-title">#7967E8</div>
+                    <div class="item-meta">Figma · 41 min ago</div>
+                  </div>
+                </div>
+                <div class="section-header"><span>Yesterday</span><span class="count">14 items</span></div>
+                <div class="history-row">
+                  <div class="item-icon file">⌑</div>
+                  <div class="item-copy">
+                    <div class="item-title">LauncherView.swift</div>
+                    <div class="item-meta">Finder · Yesterday</div>
+                  </div>
+                </div>
+                <div class="history-row">
+                  <div class="item-icon text">≡</div>
+                  <div class="item-copy">
+                    <div class="item-title">xcodebuild -project Clipboard.xcodeproj…</div>
+                    <div class="item-meta">Terminal · Yesterday</div>
+                  </div>
+                </div>
+              </aside>
+              <section class="detail-pane">
+                <div class="section-header"><span>Preview</span><span class="count">Text</span></div>
+                <div class="preview">
+                  <div class="text-preview"><span class="comment">// Product principle</span><br><br><span class="accent">Clipboard</span> should feel instant, quiet, and native.<br><br>The interface should recede until the exact moment it is needed.</div>
+                </div>
+                <div class="section-header"><span>Information</span></div>
+                <div class="info-card">
+                  <div class="info-row"><span class="label">Source</span><span class="value">🗒 &nbsp;Notes</span></div>
+                  <div class="info-row"><span class="label">Content</span><span class="value">Text · 143 characters</span></div>
+                  <div class="info-row"><span class="label">Last copied</span><span class="value">2 minutes ago</span></div>
+                </div>
+              </section>
+            </div>
+            <footer class="footer">
+              <div class="brand"><span class="brand-mark">▣</span><span>Clipboard History</span></div>
+              <div class="spacer"></div>
+              <span class="primary">Copy to Clipboard</span><span class="key">↩</span>
+              <span class="divider"></span>
+              <span>Quick Look</span><span class="keys"><span class="key">⌘</span><span class="key">K</span></span>
+            </footer>
+          </div>
+        </div>
+      </article>
+
+      <article class="mock-card">
+        <div class="caption">
+          <strong>02 · Native dark appearance</strong>
+          <span>Image selection</span>
+        </div>
+        <div class="desktop dark-desk compact">
+          <div class="panel dark mini-panel">
+            <header class="window-header">
+              <div class="search">design references</div>
+              <div class="header-tools">
+                <button class="filter-chip">Images <span>⌄</span></button>
+                <button class="icon-button">⚙︎</button>
+              </div>
+            </header>
+            <div class="main">
+              <aside class="list-pane">
+                <div class="section-header"><span>Results</span><span class="count">4 items</span></div>
+                <div class="history-row selected">
+                  <div class="item-icon image">⌁</div>
+                  <div class="item-copy"><div class="item-title">Image (1440×960)</div><div class="item-meta">Preview</div></div>
+                </div>
+                <div class="history-row">
+                  <div class="item-icon image">⌁</div>
+                  <div class="item-copy"><div class="item-title">Image (2560×1440)</div><div class="item-meta">Safari</div></div>
+                </div>
+                <div class="history-row">
+                  <div class="item-icon image">⌁</div>
+                  <div class="item-copy"><div class="item-title">Image (1200×800)</div><div class="item-meta">Figma</div></div>
+                </div>
+                <div class="history-row">
+                  <div class="item-icon image">⌁</div>
+                  <div class="item-copy"><div class="item-title">Image (512×512)</div><div class="item-meta">Finder</div></div>
+                </div>
+              </aside>
+              <section class="detail-pane">
+                <div class="section-header"><span>Preview</span><span class="count">PNG</span></div>
+                <div class="preview"><div class="image-preview"></div></div>
+                <div class="info-card">
+                  <div class="info-row"><span class="label">Dimensions</span><span class="value">1440 × 960</span></div>
+                  <div class="info-row"><span class="label">Image size</span><span class="value">624 KB</span></div>
+                </div>
+              </section>
+            </div>
+            <footer class="footer">
+              <div class="brand"><span class="brand-mark">▣</span><span>Clipboard</span></div>
+              <div class="spacer"></div>
+              <span class="primary">Copy</span><span class="key">↩</span>
+              <span class="divider"></span><span>Quick Look</span><span class="keys"><span class="key">⌘</span><span class="key">K</span></span>
+            </footer>
+          </div>
+        </div>
+      </article>
+
+      <article class="mock-card">
+        <div class="caption">
+          <strong>03 · Launcher-style action palette</strong>
+          <span>Optional interaction extension</span>
+        </div>
+        <div class="desktop compact">
+          <div class="panel mini-panel">
+            <header class="window-header">
+              <div class="search"><span class="placeholder">Search clipboard history</span></div>
+              <div class="header-tools"><button class="filter-chip">All Types <span>⌄</span></button><button class="icon-button">⚙︎</button></div>
+            </header>
+            <div class="main">
+              <aside class="list-pane">
+                <div class="section-header"><span>Today</span><span class="count">8 items</span></div>
+                <div class="history-row selected"><div class="item-icon link">↗</div><div class="item-copy"><div class="item-title">github.com/stevemurr/clipboard</div></div></div>
+                <div class="history-row"><div class="item-icon text">≡</div><div class="item-copy"><div class="item-title">Clipboard should feel instant…</div></div></div>
+                <div class="history-row"><div class="item-icon image">⌁</div><div class="item-copy"><div class="item-title">Image (1440×960)</div></div></div>
+                <div class="history-row"><div class="item-icon color"></div><div class="item-copy"><div class="item-title">#7967E8</div></div></div>
+              </aside>
+              <section class="detail-pane">
+                <div class="section-header"><span>Preview</span><span class="count">Link</span></div>
+                <div class="preview">
+                  <div class="text-preview"><span class="accent">https://github.com/</span><br>stevemurr/clipboard</div>
+                </div>
+                <div class="info-card">
+                  <div class="info-row"><span class="label">Source</span><span class="value">Safari</span></div>
+                  <div class="info-row"><span class="label">Last copied</span><span class="value">12 min ago</span></div>
+                </div>
+              </section>
+            </div>
+            <footer class="footer">
+              <div class="brand"><span class="brand-mark">▣</span></div>
+              <div class="spacer"></div>
+              <span class="primary">Copy</span><span class="key">↩</span>
+              <span class="divider"></span><span>Actions</span><span class="keys"><span class="key">⌘</span><span class="key">K</span></span>
+            </footer>
+            <div class="palette">
+              <div class="palette-title">github.com/stevemurr/clipboard</div>
+              <div class="action selected"><span class="action-icon">▣</span><span class="action-name">Copy to Clipboard</span><span class="spacer"></span><span class="key">↩</span></div>
+              <div class="action"><span class="action-icon">↗</span><span class="action-name">Open Link</span><span class="spacer"></span><span class="key">⌘↩</span></div>
+              <div class="action"><span class="action-icon">◉</span><span class="action-name">Quick Look</span><span class="spacer"></span><span class="key">⌘Y</span></div>
+              <div class="action danger"><span class="action-icon">⌫</span><span class="action-name">Delete from History</span><span class="spacer"></span><span class="key">⌘⌫</span></div>
+              <div style="height:6px"></div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="mock-token-strip" aria-label="Visual system notes">
+      <div class="token">
+        <div class="token-name">Surface</div>
+        <div class="swatches"><span class="swatch" style="background:#f0f0f3"></span><span class="swatch" style="background:#1b1b1e"></span></div>
+      </div>
+      <div class="token">
+        <div class="token-name">Geometry</div>
+        <div class="token-value">16 px window<br>12–14 px controls</div>
+      </div>
+      <div class="token">
+        <div class="token-name">Density</div>
+        <div class="token-value">59 px header<br>48 px result row</div>
+      </div>
+      <div class="token">
+        <div class="token-name">Typography</div>
+        <div class="token-value">20 px search<br>13–16 px content</div>
+      </div>
+      <div class="token">
+        <div class="token-name">Interaction</div>
+        <div class="token-value">Quiet selection<br>Persistent keycaps</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

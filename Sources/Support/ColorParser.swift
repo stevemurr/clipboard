@@ -40,9 +40,12 @@ enum ColorParser {
 
     private static func rgbColor(_ string: String) -> NSColor? {
         guard let open = string.firstIndex(of: "("), string.hasSuffix(")") else { return nil }
+        let function = string[..<open].lowercased()
         let inner = string[string.index(after: open)..<string.index(before: string.endIndex)]
         let parts = inner.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-        guard parts.count == 3 || parts.count == 4 else { return nil }
+        guard (function == "rgb" && parts.count == 3)
+                || (function == "rgba" && parts.count == 4)
+        else { return nil }
 
         func channel(_ part: String) -> CGFloat? {
             if part.hasSuffix("%"), let v = Double(part.dropLast()) { return CGFloat(v / 100) }
