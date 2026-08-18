@@ -64,7 +64,7 @@ targets:
         # Local MCP pairing grants needs a team-derived keychain access group;
         # ad-hoc "-" has none, so SecItem calls fail (grant_list_failed).
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: 6237SR7A22
+        DEVELOPMENT_TEAM: 9AKW22W4WR
         # Indirection so a VM UI-test runner can retarget the app's
         # entitlements from the command line (CLIPBOARD_ENTITLEMENTS=...)
         # without a global CODE_SIGN_ENTITLEMENTS override leaking onto the
